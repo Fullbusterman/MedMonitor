@@ -48,19 +48,17 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        // Замените AppDbContext на имя вашего класса контекста базы данных!
-        var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>(); 
+        var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>();
         
-        // Автоматически создает файл базы данных и применяет миграции, если их нет
-        context.Database.EnsureCreated();; 
-        
-        // Заполняем базу нашими 8 пациентами
-        MedMonitor.Data.DbInitializer.Seed(context); 
+        // ВМЕСТО Migrate() используем EnsureCreated()
+        // Если БД нет, метод создаст файл и СРАЗУ сгенерирует таблицы по моделям,
+        // включая ваши Seed-данные из OnModelCreating.
+        context.Database.EnsureCreated();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ошибка при инициализации или миграции базы данных.");
+        logger.LogError(ex, "Произошла ошибка при инициализации базы данных.");
     }
 }
 
