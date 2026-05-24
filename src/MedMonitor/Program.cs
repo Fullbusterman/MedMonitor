@@ -43,4 +43,22 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// Блок автоматической инициализации базы данных при старте
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>();
+        
+        // Эта команда проверяет наличие БД. Если её нет, она создаёт файл 
+        // и автоматически применяет все миграции вместе с вашими Seed-данными.
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Произошла ошибка при накате миграций на базу данных.");
+    }
+}
 app.Run();
