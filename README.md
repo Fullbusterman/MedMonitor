@@ -1,6 +1,6 @@
 # 🏥 MedMonitor — Система мониторинга пациентов
 
-[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-medmonitor-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/youruser/medmonitor)
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-medmonitor-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/fullbusterman/medmonitor)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
 [![Blazor](https://img.shields.io/badge/Blazor-Server-512BD4?logo=blazor)](https://blazor.net)
 [![EF Core](https://img.shields.io/badge/EF%20Core-8.0-green)](https://learn.microsoft.com/ef/core)
@@ -72,85 +72,6 @@ Patient (1) ──── (N) VitalSign     каскадное удаление
 | `Relative`  | Id, PatientId (FK), ФИО, Relationship, PhoneNumber, IsPrimaryContact |
 | `VitalSign` | Id, PatientId (FK), MeasuredAt, BloodPressure, HeartRate, Temperature, OxygenSaturation, RespiratoryRate |
 
----
-
-## 🚀 Запуск
-
-### Вариант 1 — Docker Hub (одна команда)
-
-```bash
-docker run -d \
-  -p 8080:8080 \
-  -v medmonitor_data:/app/data \
-  --name medmonitor \
-  youruser/medmonitor:latest
-
-# Открыть → http://localhost:8080
-```
-
-### Вариант 2 — docker-compose
-
-```bash
-git clone https://github.com/youruser/medmonitor.git
-cd medmonitor
-
-docker-compose up -d
-
-# Открыть → http://localhost:8080
-
-docker-compose down          # остановить
-docker-compose down -v       # остановить + удалить данные
-```
-
-### Вариант 3 — локальная разработка (.NET 8 SDK)
-
-```bash
-cd src/MedMonitor
-dotnet restore
-dotnet run
-# Открыть → http://localhost:5001
-```
-
----
-
-## 🐳 Публикация на Docker Hub
-
-### Способ А — скрипт (рекомендуется)
-
-**Linux / macOS:**
-```bash
-chmod +x publish_to_dockerhub.sh
-./publish_to_dockerhub.sh johndoe 1.0.0
-```
-
-**Windows (PowerShell):**
-```powershell
-.\publish_to_dockerhub.ps1 -DockerUser johndoe -Version 1.0.0
-```
-
-### Способ Б — вручную
-
-```bash
-# 1. Авторизация
-docker login
-
-# 2. Сборка с тегами
-docker build -t johndoe/medmonitor:latest -t johndoe/medmonitor:1.0.0 .
-
-# 3. Публикация
-docker push johndoe/medmonitor:latest
-docker push johndoe/medmonitor:1.0.0
-```
-
-### Способ В — GitHub Actions (автоматически)
-
-Добавьте секреты в репозиторий GitHub:
-- `DOCKERHUB_USERNAME` — ваш логин Docker Hub  
-- `DOCKERHUB_TOKEN`    — Access Token из [hub.docker.com/settings/security](https://hub.docker.com/settings/security)
-
-Каждый push в `main` или тег `v*.*.*` автоматически собирает и публикует образ.
-
----
 
 ## ⚙️ Переменные окружения
 
@@ -164,5 +85,5 @@ docker push johndoe/medmonitor:1.0.0
 
 ## 🔗 Ссылки
 
-- **GitHub:** https://github.com/youruser/medmonitor  
-- **Docker Hub:** https://hub.docker.com/r/youruser/medmonitor
+- **GitHub:** https://github.com/fullbusterman/medmonitor  
+- **Docker Hub:** https://hub.docker.com/r/fullbusterman/medmonitor
