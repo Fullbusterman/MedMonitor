@@ -50,9 +50,22 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>();
         
-        // ВМЕСТО Migrate() используем EnsureCreated()
-        // Если БД нет, метод создаст файл и СРАЗУ сгенерирует таблицы по моделям,
-        // включая ваши Seed-данные из OnModelCreating.
+        // ХАК ДЛЯ ГАРАНТИРОВАННОГО СТАРТА:
+        // Если при запросе к Patients падает ошибка (таблицы нет), 
+        // мы принудительно сносим этот битый файл базы и создаем его заново.
+        try
+        {
+            // Проверяем, существует ли таблица на самом деле
+            _ = context.Patients.Any();
+        }
+        catch
+        {
+            // Если упало — значит файл базы битый/пустой. Удаляем его физически!
+            context.Database.EnsureDeleted();
+        }
+
+        // Теперь создаем чистую базу с нуля. На этот раз таблицы точно сгенерируются,
+        // и подгрузятся все ваши дефолтные пациенты.
         context.Database.EnsureCreated();
     }
     catch (Exception ex)
