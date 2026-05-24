@@ -109,31 +109,43 @@ else
         return "border-success";
     }
 
-    private string GetBpColor(int? systolic) => systolic switch
-    {
-        > 160 => "text-danger",
-        > 140 => "text-warning",
-        _ => "text-success"
-    };
+    private string GetCardClass(VitalSign? v)
+{
+    if (v == null) return "";
+    if (v.BloodPressureSystolic > 160 || v.HeartRate > 100 || 
+        v.Temperature > 38.5m || v.OxygenSaturation < 90)
+        return "border-danger";
+    if (v.BloodPressureSystolic > 140 || v.Temperature > 37.5m || 
+        v.OxygenSaturation < 95)
+        return "border-warning";
+    return "border-success";
+}
 
-    private string GetHrColor(int? hr) => hr switch
-    {
-        > 100 or < 50 => "text-danger",
-        > 90 => "text-warning",
-        _ => "text-success"
-    };
+private string GetBpColor(int? systolic)
+{
+    if (systolic > 160) return "text-danger";
+    if (systolic > 140) return "text-warning";
+    return "text-success";
+}
 
-    private string GetTempColor(decimal? temp) => temp switch
-    {
-        > 38.5m => "text-danger",
-        > 37.5m => "text-warning",
-        _ => "text-success"
-    };
+private string GetHrColor(int? hr)
+{
+    if (hr > 100 || hr < 50) return "text-danger";
+    if (hr > 90) return "text-warning";
+    return "text-success";
+}
 
-    private string GetSpo2Color(int? spo2) => spo2 switch
-    {
-        < 90 => "text-danger",
-        < 95 => "text-warning",
-        _ => "text-success"
-    };
+private string GetTempColor(decimal? temp)
+{
+    if (temp > 38.5m) return "text-danger";
+    if (temp > 37.5m) return "text-warning";
+    return "text-success";
+}
+
+private string GetSpo2Color(int? spo2)
+{
+    if (spo2 < 90) return "text-danger";
+    if (spo2 < 95) return "text-warning";
+    return "text-success";
+}
 }
