@@ -5,12 +5,14 @@
 
 <PageTitle>Мониторинг показателей — МедМонитор</PageTitle>
 
-<h1>❤️ Мониторинг показателей жизнедеятельности</h1>
+<h1>Мониторинг показателей жизнедеятельности</h1>
 <p class="text-muted">Последние измерения активных пациентов</p>
 
 @if (isLoading)
 {
-    <div class="text-center my-4"><div class="spinner-border text-danger"></div></div>
+    <div class="text-center my-4">
+        <div class="spinner-border text-danger"></div>
+    </div>
 }
 else
 {
@@ -48,7 +50,7 @@ else
                                 </div>
                                 <div class="col-4">
                                     <div class="border rounded p-2">
-                                        <div class="small text-muted">T° (°C)</div>
+                                        <div class="small text-muted">T (C)</div>
                                         <div class="fw-bold @GetTempColor(latest.Temperature)">
                                             @(latest.Temperature?.ToString("F1") ?? "—")
                                         </div>
@@ -102,50 +104,40 @@ else
     private string GetCardClass(VitalSign? v)
     {
         if (v == null) return "";
-        if (v.BloodPressureSystolic > 160 || v.HeartRate > 100 || v.Temperature > 38.5m || v.OxygenSaturation < 90)
+        if (v.BloodPressureSystolic > 160 || v.HeartRate > 100
+            || v.Temperature > 38.5m || v.OxygenSaturation < 90)
             return "border-danger";
-        if (v.BloodPressureSystolic > 140 || v.Temperature > 37.5m || v.OxygenSaturation < 95)
+        if (v.BloodPressureSystolic > 140 || v.Temperature > 37.5m
+            || v.OxygenSaturation < 95)
             return "border-warning";
         return "border-success";
     }
 
-    private string GetCardClass(VitalSign? v)
-{
-    if (v == null) return "";
-    if (v.BloodPressureSystolic > 160 || v.HeartRate > 100 || 
-        v.Temperature > 38.5m || v.OxygenSaturation < 90)
-        return "border-danger";
-    if (v.BloodPressureSystolic > 140 || v.Temperature > 37.5m || 
-        v.OxygenSaturation < 95)
-        return "border-warning";
-    return "border-success";
-}
+    private string GetBpColor(int? systolic)
+    {
+        if (systolic > 160) return "text-danger";
+        if (systolic > 140) return "text-warning";
+        return "text-success";
+    }
 
-private string GetBpColor(int? systolic)
-{
-    if (systolic > 160) return "text-danger";
-    if (systolic > 140) return "text-warning";
-    return "text-success";
-}
+    private string GetHrColor(int? hr)
+    {
+        if (hr > 100 || hr < 50) return "text-danger";
+        if (hr > 90) return "text-warning";
+        return "text-success";
+    }
 
-private string GetHrColor(int? hr)
-{
-    if (hr > 100 || hr < 50) return "text-danger";
-    if (hr > 90) return "text-warning";
-    return "text-success";
-}
+    private string GetTempColor(decimal? temp)
+    {
+        if (temp > 38.5m) return "text-danger";
+        if (temp > 37.5m) return "text-warning";
+        return "text-success";
+    }
 
-private string GetTempColor(decimal? temp)
-{
-    if (temp > 38.5m) return "text-danger";
-    if (temp > 37.5m) return "text-warning";
-    return "text-success";
-}
-
-private string GetSpo2Color(int? spo2)
-{
-    if (spo2 < 90) return "text-danger";
-    if (spo2 < 95) return "text-warning";
-    return "text-success";
-}
+    private string GetSpo2Color(int? spo2)
+    {
+        if (spo2 < 90) return "text-danger";
+        if (spo2 < 95) return "text-warning";
+        return "text-success";
+    }
 }
