@@ -52,7 +52,7 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>(); 
         
         // Автоматически создает файл базы данных и применяет миграции, если их нет
-        context.Database.Migrate(); 
+        context.Database.EnsureCreated();; 
         
         // Заполняем базу нашими 8 пациентами
         MedMonitor.Data.DbInitializer.Seed(context); 
