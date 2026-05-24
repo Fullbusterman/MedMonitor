@@ -42,4 +42,26 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
+// Автоматическое создание/миграция БД и заполнение данными
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        // Замените AppDbContext на имя вашего класса контекста базы данных!
+        var context = services.GetRequiredService<AppDbContext>(); 
+        
+        // Автоматически создает файл базы данных и применяет миграции, если их нет
+        context.Database.Migrate(); 
+        
+        // Заполняем базу нашими 8 пациентами
+        MedMonitor.Data.DbInitializer.Seed(context); 
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ошибка при инициализации или миграции базы данных.");
+    }
+}
+
 app.Run();
