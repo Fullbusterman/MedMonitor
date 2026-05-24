@@ -2,7 +2,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 COPY src/MedMonitor/MedMonitor.csproj ./MedMonitor/
-RUN dotnet restore ./MedMonitor/MedMonitor.csproj
+RUN dotnet restore ./MedMonitor/MedMonitor.csproj \
+    --source https://api.nuget.org/v3/index.json
 
 COPY src/MedMonitor/ ./MedMonitor/
 RUN dotnet publish ./MedMonitor/MedMonitor.csproj \
