@@ -49,7 +49,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         // Замените AppDbContext на имя вашего класса контекста базы данных!
-        var context = services.GetRequiredService<AppDbContext>(); 
+        var context = services.GetRequiredService<MedMonitor.Data.MedMonitorDbContext>(); 
         
         // Автоматически создает файл базы данных и применяет миграции, если их нет
         context.Database.Migrate(); 
