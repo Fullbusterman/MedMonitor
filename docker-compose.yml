@@ -1,0 +1,36 @@
+version: '3.9'
+
+# ============================================================
+# docker-compose.yml — Система мониторинга пациентов
+# Сервисы: web-приложение (Blazor) + том для SQLite БД
+# ============================================================
+
+services:
+
+  # Blazor Web App — основное приложение
+  medmonitor-app:
+    image: medmonitor:latest          # Или ваш образ с Docker Hub: youruser/medmonitor:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medmonitor_app
+    ports:
+      - "8080:8080"                   # http://localhost:8080
+    volumes:
+      - medmonitor_data:/app/data     # Персистентное хранение SQLite БД
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/medmonitor.db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+# Именованные тома для хранения данных
+volumes:
+  medmonitor_data:
+    driver: local

@@ -1,0 +1,152 @@
+@page "/patients/new"
+@page "/patients/{Id:int}/edit"
+@rendermode InteractiveServer
+@inject IPatientService PatientService
+@inject NavigationManager NavManager
+
+<PageTitle>@(isNew ? "Новый пациент" : "Редактирование") — МедМонитор</PageTitle>
+
+<h1>@(isNew ? "Добавить пациента" : "Редактировать пациента")</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <EditForm Model="patient" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="card mb-3">
+                <div class="card-header">Личные данные</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Фамилия *</label>
+                            <InputText class="form-control" @bind-Value="patient.LastName" />
+                            <ValidationMessage For="() => patient.LastName" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Имя *</label>
+                            <InputText class="form-control" @bind-Value="patient.FirstName" />
+                            <ValidationMessage For="() => patient.FirstName" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Отчество</label>
+                            <InputText class="form-control" @bind-Value="patient.MiddleName" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Дата рождения *</label>
+                            <InputDate class="form-control" @bind-Value="patient.DateOfBirth" />
+                            <ValidationMessage For="() => patient.DateOfBirth" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Пол *</label>
+                            <InputSelect class="form-select" @bind-Value="patient.Gender">
+                                <option value="">-- Выберите --</option>
+                                <option value="М">Мужской</option>
+                                <option value="Ж">Женский</option>
+                            </InputSelect>
+                            <ValidationMessage For="() => patient.Gender" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Группа крови</label>
+                            <InputSelect class="form-select" @bind-Value="patient.BloodType">
+                                <option value="">-- Не указана --</option>
+                                <option value="I+">I (O) Rh+</option>
+                                <option value="I-">I (O) Rh-</option>
+                                <option value="II+">II (A) Rh+</option>
+                                <option value="II-">II (A) Rh-</option>
+                                <option value="III+">III (B) Rh+</option>
+                                <option value="III-">III (B) Rh-</option>
+                                <option value="IV+">IV (AB) Rh+</option>
+                                <option value="IV-">IV (AB) Rh-</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Телефон</label>
+                            <InputText class="form-control" @bind-Value="patient.PhoneNumber" placeholder="+7-XXX-XXX-XXXX" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Номер полиса ОМС</label>
+                            <InputText class="form-control" @bind-Value="patient.PolicyNumber" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Адрес</label>
+                            <InputText class="form-control" @bind-Value="patient.Address" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">Медицинская информация</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Диагнозы</label>
+                            <InputTextArea class="form-control" rows="3" @bind-Value="patient.Diagnoses" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Статус</label>
+                            <InputSelect class="form-select" @bind-Value="patient.Status">
+                                <option value="Активный">Активный</option>
+                                <option value="Выписан">Выписан</option>
+                                <option value="Наблюдение">Наблюдение</option>
+                            </InputSelect>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Дата госпитализации</label>
+                            <InputDate class="form-control" @bind-Value="patient.AdmissionDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Дата выписки</label>
+                            <InputDate class="form-control" @bind-Value="patient.DischargeDate" />
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <InputCheckbox class="form-check-input" @bind-Value="patient.HasAllergies" id="allergies" />
+                                <label class="form-check-label" for="allergies">Есть аллергии</label>
+                            </div>
+                        </div>
+                        @if (patient.HasAllergies)
+                        {
+                            <div class="col-12">
+                                <label class="form-label">Описание аллергий</label>
+                                <InputTextArea class="form-control" rows="2" @bind-Value="patient.AllergyDescription" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+                <a href="patients" class="btn btn-secondary">Отмена</a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+
+    private Patient patient = new() { DateOfBirth = DateTime.Today.AddYears(-30), AdmissionDate = DateTime.Today };
+    private bool isNew => Id == null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            var existing = await PatientService.GetPatientByIdAsync(Id.Value);
+            if (existing != null) patient = existing;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (isNew)
+            await PatientService.CreatePatientAsync(patient);
+        else
+            await PatientService.UpdatePatientAsync(patient);
+
+        NavManager.NavigateTo("/patients");
+    }
+}

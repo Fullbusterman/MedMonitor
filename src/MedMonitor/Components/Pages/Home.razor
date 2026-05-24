@@ -1,0 +1,56 @@
+@page "/"
+@rendermode InteractiveServer
+@inject IPatientService PatientService
+
+<PageTitle>МедМонитор — Главная</PageTitle>
+
+<h1>🏥 Система мониторинга пациентов</h1>
+<p class="text-muted">Медицинское учреждение — Панель управления</p>
+
+<div class="row g-4 mt-2">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Всего пациентов</h5>
+                <p class="display-4">@totalPatients</p>
+                <p class="card-text">Зарегистрировано в системе</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-success text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Активных пациентов</h5>
+                <p class="display-4">@activePatients</p>
+                <p class="card-text">Находятся на лечении</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-info text-white h-100">
+            <div class="card-body">
+                <h5 class="card-title">Выписано</h5>
+                <p class="display-4">@(totalPatients - activePatients)</p>
+                <p class="card-text">Завершили лечение</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h4>Быстрые действия</h4>
+    <a href="patients" class="btn btn-outline-primary me-2">📋 Список пациентов</a>
+    <a href="patients/new" class="btn btn-outline-success me-2">➕ Добавить пациента</a>
+    <a href="vitals" class="btn btn-outline-danger">❤️ Мониторинг показателей</a>
+</div>
+
+@code {
+    private int totalPatients;
+    private int activePatients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        totalPatients = await PatientService.GetTotalCountAsync();
+        activePatients = await PatientService.GetActiveCountAsync();
+    }
+}

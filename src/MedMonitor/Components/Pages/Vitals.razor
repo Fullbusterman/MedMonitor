@@ -1,0 +1,139 @@
+@page "/vitals"
+@rendermode InteractiveServer
+@inject IPatientService PatientService
+@inject IVitalSignService VitalSignService
+
+<PageTitle>Мониторинг показателей — МедМонитор</PageTitle>
+
+<h1>❤️ Мониторинг показателей жизнедеятельности</h1>
+<p class="text-muted">Последние измерения активных пациентов</p>
+
+@if (isLoading)
+{
+    <div class="text-center my-4"><div class="spinner-border text-danger"></div></div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in patientVitals)
+        {
+            var latest = item.Vitals.FirstOrDefault();
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 @GetCardClass(latest)">
+                    <div class="card-header d-flex justify-content-between">
+                        <a href="patients/@item.Patient.Id" class="text-decoration-none fw-bold">
+                            @item.Patient.FullName
+                        </a>
+                        <small>@item.Patient.Age лет</small>
+                    </div>
+                    <div class="card-body">
+                        @if (latest != null)
+                        {
+                            <div class="row text-center g-2">
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <div class="small text-muted">АД (мм рт.ст.)</div>
+                                        <div class="fs-5 fw-bold @GetBpColor(latest.BloodPressureSystolic)">
+                                            @latest.BloodPressureFormatted
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="border rounded p-2">
+                                        <div class="small text-muted">Пульс (уд/мин)</div>
+                                        <div class="fs-5 fw-bold @GetHrColor(latest.HeartRate)">
+                                            @(latest.HeartRate?.ToString() ?? "—")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <div class="small text-muted">T° (°C)</div>
+                                        <div class="fw-bold @GetTempColor(latest.Temperature)">
+                                            @(latest.Temperature?.ToString("F1") ?? "—")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <div class="small text-muted">SpO2 (%)</div>
+                                        <div class="fw-bold @GetSpo2Color(latest.OxygenSaturation)">
+                                            @(latest.OxygenSaturation?.ToString() ?? "—")
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border rounded p-2">
+                                        <div class="small text-muted">ЧД</div>
+                                        <div class="fw-bold">@(latest.RespiratoryRate?.ToString() ?? "—")</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-muted small text-end">
+                                @latest.MeasuredAt.ToString("dd.MM HH:mm")
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center">Нет данных</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool isLoading = true;
+    private List<(Patient Patient, List<VitalSign> Vitals)> patientVitals = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var patients = await PatientService.GetAllPatientsAsync(statusFilter: "Активный");
+        foreach (var p in patients)
+        {
+            var vitals = await VitalSignService.GetVitalSignsByPatientIdAsync(p.Id, limit: 5);
+            patientVitals.Add((p, vitals));
+        }
+        isLoading = false;
+    }
+
+    private string GetCardClass(VitalSign? v)
+    {
+        if (v == null) return "";
+        if (v.BloodPressureSystolic > 160 || v.HeartRate > 100 || v.Temperature > 38.5m || v.OxygenSaturation < 90)
+            return "border-danger";
+        if (v.BloodPressureSystolic > 140 || v.Temperature > 37.5m || v.OxygenSaturation < 95)
+            return "border-warning";
+        return "border-success";
+    }
+
+    private string GetBpColor(int? systolic) => systolic switch
+    {
+        > 160 => "text-danger",
+        > 140 => "text-warning",
+        _ => "text-success"
+    };
+
+    private string GetHrColor(int? hr) => hr switch
+    {
+        > 100 or < 50 => "text-danger",
+        > 90 => "text-warning",
+        _ => "text-success"
+    };
+
+    private string GetTempColor(decimal? temp) => temp switch
+    {
+        > 38.5m => "text-danger",
+        > 37.5m => "text-warning",
+        _ => "text-success"
+    };
+
+    private string GetSpo2Color(int? spo2) => spo2 switch
+    {
+        < 90 => "text-danger",
+        < 95 => "text-warning",
+        _ => "text-success"
+    };
+}

@@ -1,0 +1,122 @@
+@page "/patients/{PatientId:int}/relatives/new"
+@page "/patients/{PatientId:int}/relatives/{Id:int}/edit"
+@rendermode InteractiveServer
+@inject IRelativeService RelativeService
+@inject IPatientService PatientService
+@inject NavigationManager NavManager
+
+<PageTitle>@(isNew ? "Добавить родственника" : "Редактировать родственника") — МедМонитор</PageTitle>
+
+@if (patient != null)
+{
+    <h1>@(isNew ? "Добавить родственника" : "Редактировать родственника")</h1>
+    <p class="text-muted">Пациент: <strong>@patient.FullName</strong></p>
+}
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-success text-white">👨‍👩‍👧 Данные родственника</div>
+            <div class="card-body">
+                <EditForm Model="relative" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger" />
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Фамилия *</label>
+                            <InputText class="form-control" @bind-Value="relative.LastName" />
+                            <ValidationMessage For="() => relative.LastName" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Имя *</label>
+                            <InputText class="form-control" @bind-Value="relative.FirstName" />
+                            <ValidationMessage For="() => relative.FirstName" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Отчество</label>
+                            <InputText class="form-control" @bind-Value="relative.MiddleName" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Степень родства *</label>
+                            <InputSelect class="form-select" @bind-Value="relative.Relationship">
+                                <option value="">-- Выберите --</option>
+                                <option value="Супруг">Супруг</option>
+                                <option value="Супруга">Супруга</option>
+                                <option value="Отец">Отец</option>
+                                <option value="Мать">Мать</option>
+                                <option value="Сын">Сын</option>
+                                <option value="Дочь">Дочь</option>
+                                <option value="Брат">Брат</option>
+                                <option value="Сестра">Сестра</option>
+                                <option value="Дедушка">Дедушка</option>
+                                <option value="Бабушка">Бабушка</option>
+                                <option value="Опекун">Опекун</option>
+                                <option value="Иное">Иное</option>
+                            </InputSelect>
+                            <ValidationMessage For="() => relative.Relationship" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Телефон *</label>
+                            <InputText class="form-control" @bind-Value="relative.PhoneNumber" placeholder="+7-XXX-XXX-XXXX" />
+                            <ValidationMessage For="() => relative.PhoneNumber" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="relative.Email" placeholder="example@mail.ru" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Адрес</label>
+                            <InputText class="form-control" @bind-Value="relative.Address" />
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <InputCheckbox class="form-check-input" @bind-Value="relative.IsPrimaryContact" id="primaryContact" />
+                                <label class="form-check-label" for="primaryContact">
+                                    Основной контакт для экстренной связи
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">💾 Сохранить</button>
+                        <a href="patients/@PatientId" class="btn btn-secondary">Отмена</a>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int PatientId { get; set; }
+    [Parameter] public int? Id { get; set; }
+
+    private Relative relative = new();
+    private Patient? patient;
+    private bool isNew => Id == null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        patient = await PatientService.GetPatientByIdAsync(PatientId);
+        relative.PatientId = PatientId;
+
+        if (!isNew)
+        {
+            var rels = await RelativeService.GetRelativesByPatientIdAsync(PatientId);
+            var existing = rels.FirstOrDefault(r => r.Id == Id);
+            if (existing != null) relative = existing;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (isNew)
+            await RelativeService.CreateRelativeAsync(relative);
+        else
+            await RelativeService.UpdateRelativeAsync(relative);
+
+        NavManager.NavigateTo($"/patients/{PatientId}");
+    }
+}

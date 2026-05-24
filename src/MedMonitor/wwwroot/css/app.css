@@ -1,0 +1,103 @@
+/* === MedMonitor — Global Styles === */
+
+html, body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6fb;
+}
+
+/* Sidebar */
+.sidebar {
+    background: linear-gradient(180deg, #1a3a5c 0%, #1e4976 100%);
+    min-height: 100vh;
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-brand {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    border-radius: 6px;
+    margin: 2px 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #fff !important;
+    background-color: rgba(255,255,255,0.15);
+}
+
+/* Main content area */
+.page {
+    display: flex;
+}
+
+main {
+    flex: 1;
+    margin-left: 250px;
+    min-height: 100vh;
+}
+
+.top-row {
+    background: #fff;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.content {
+    padding: 2rem 1.5rem;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+    padding: 0.85rem 1.25rem;
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+    background-color: #eef4fd;
+}
+
+/* Badges */
+.badge {
+    font-size: 0.8em;
+    padding: 0.4em 0.75em;
+    border-radius: 20px;
+}
+
+/* Vital sign cards */
+.border-danger { border: 2px solid #dc3545 !important; }
+.border-warning { border: 2px solid #ffc107 !important; }
+.border-success { border: 2px solid #198754 !important; }
+
+/* Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive: hide sidebar on small screens */
+@media (max-width: 768px) {
+    .sidebar { width: 100%; min-height: auto; position: relative; }
+    main { margin-left: 0; }
+}
